@@ -59,7 +59,7 @@ var auditTask = function(taskEl) {
   // convert to moment object at 5:00pm
   var time = moment(date, "L").set("hour", 17);
 
-  console.log(time);
+  //console.log(time);
 
   // remove any old classes from element
   $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
@@ -71,26 +71,29 @@ var auditTask = function(taskEl) {
   else if (Math.abs(moment().diff(time, "days")) <= 2) {
     $(taskEl).addClass("list-group-item-warning");
   }
+  console.log(taskEl);
 };
 
 // enable draggable/sortable feature on list-group elements
 $(".card .list-group").sortable({
-  // enable dragging across lists
+  //enable dragging across lists
   connectWith: $(".card .list-group"),
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
   activate: function(event, ui) {
-    console.log(ui);
+    $(this).addClass( "dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag");
   },
   deactivate: function(event, ui) {
-    console.log(ui);
+    $(this).removeClass("dropover");
+    $(".bottom-trash").removeClass("bottom-trash-drag");
   },
   over: function(event) {
-    console.log(event);
+    $(event.target).addClass("dropover-active");
   },
   out: function(event) {
-    console.log(event);
+    $(event.target).removeClass("dropover-active");
   },
   update: function() {
     var tempArr = [];
@@ -126,6 +129,7 @@ $(".card .list-group").sortable({
   }
 });
 
+
 // trash icon can be dropped onto
 $("#trash").droppable({
   accept: ".card .list-group-item",
@@ -133,12 +137,13 @@ $("#trash").droppable({
   drop: function(event, ui) {
     // remove dragged element from the dom
     ui.draggable.remove();
+    $(".bottom-trash").removeClass("bottom-trash-active");
   },
   over: function(event, ui) {
-    console.log(ui);
+    $(".bottom-trash").addClass("bottom-trash-active");
   },
   out: function(event, ui) {
-    console.log(ui);
+    $(".bottom-trash").removeClass("bottom-trash-active");
   }
 });
 
@@ -285,6 +290,12 @@ $("#remove-tasks").on("click", function() {
   console.log(tasks);
   saveTasks();
 });
+
+setInterval(function () {
+  $(".card .list-group-item").each(function(index, el) {
+    auditTask(el);
+  });
+}, (1000 * 60) * 30);
 
 // load tasks for the first time
 loadTasks();
